@@ -1,4 +1,4 @@
-package models
+package main
 
 import (
 	"fmt"
@@ -11,18 +11,36 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	// logger
-	// config
-	// db connect
-	// migrate
-	//
+	cfg := config.MustLoad()
+	logger := logger.GetLogger(cfg.Env)
 
-	http.HandleFunc("/", handler)
+	application := app.New(cfg, logger)
 
-	fmt.Println("Сервер запущен на http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Errorf("failed run server err: %s", err)
-	}
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	go application.MustStart()
+
+	<-stop
+	application.Close()
+	logger.Info("app succesfully stop")
 
 }
+
+// func main() {
+
+// 	// logger
+// 	// config
+// 	// db connect
+// 	// migrate
+// 	//
+
+// 	http.HandleFunc("/", handler)
+
+// 	fmt.Println("Сервер запущен на http://localhost:8080")
+// 	err := http.ListenAndServe(":8080", nil)
+// 	if err != nil {
+// 		fmt.Errorf("failed run server err: %s", err)
+// 	}
+
+// }
