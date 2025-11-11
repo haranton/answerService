@@ -2,10 +2,10 @@ package models
 
 import "time"
 
-type Answer struct {
-	ID         int       `json:"id"`
-	QuestionID int       `json:"question_id"`
-	UserID     string    `json:"user_id"`
-	Text       string    `json:"text"`
-	CreatedAt  time.Time `json:"created_at"`
+type Question struct {
+	ID        int       `json:"id" gorm:"primaryKey;autoIncrement"`
+	Text      string    `json:"text" gorm:"type:text;not null"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+
+	Answers []Answer `json:"answers,omitempty" gorm:"foreignKey:QuestionID;constraint:OnDelete:CASCADE"`
 }

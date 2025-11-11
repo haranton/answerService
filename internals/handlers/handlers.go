@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"authservice/internals/config"
-	"authservice/internals/service"
+	"answerService/internals/config"
+	"answerService/internals/service"
 	"log/slog"
 	"net/http"
 )
@@ -23,12 +23,12 @@ func NewHandler(service *service.Service, logger *slog.Logger, cfg *config.Confi
 
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
-	mux.HandleFunc("POST /api/auth/register", h.UsersRegisterHandler)
-	mux.HandleFunc("POST /api/auth/login", h.UsersLoginHandler)
-	mux.HandleFunc("POST /api/auth/logout", h.UsersLogoutHandler)
-	mux.HandleFunc("POST /api/auth/refresh", h.UsersRefreshHandler)
+	mux.HandleFunc("GET /api/questions/", h.GetQuestions)
+	mux.HandleFunc("POST /api/questions/", h.CreateQuestion)
+	mux.HandleFunc("GET /api/questions/{id}", h.GetQuestion)
+	mux.HandleFunc("DELETE /api/questions/{id}", h.DeleteQuestion)
 
-	//todo proxy
-	mux.Handle("/api/users/", h.AuthProxyHandler(h.cfg.ServiceNginxURL))
-
+	mux.HandleFunc("POST /api/questions/{id}/answers/", h.CreateAnswer)
+	mux.HandleFunc("GET /api/answers/{id}", h.GetAnswer)
+	mux.HandleFunc("DELETE /api/answers/{id}", h.DeleteAnswer)
 }

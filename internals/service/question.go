@@ -14,6 +14,10 @@ func NewQuestionService(storage storage.Storage) *QuestionService {
 	return &QuestionService{storage: storage}
 }
 
+func (q *QuestionService) Questions(ctx context.Context) ([]models.Question, error) {
+	return q.storage.Questions(ctx)
+}
+
 func (q *QuestionService) Question(ctx context.Context, id int) (*models.Question, error) {
 	return q.storage.Question(ctx, id)
 }

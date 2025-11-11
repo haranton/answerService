@@ -12,7 +12,7 @@ type Storage interface {
 
 type QuestionStorage interface {
 	Question(ctx context.Context, id int) (*models.Question, error)
-	Questions(ctx context.Context, offset int, limit int) ([]models.Question, error)
+	Questions(ctx context.Context) ([]models.Question, error)
 	CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error)
 	DeleteQuestion(ctx context.Context, id int) error
 }
