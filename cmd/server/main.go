@@ -11,6 +11,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	// logger
+	// config
+	// db connect
+	// migrate
+	//
+
 	http.HandleFunc("/", handler)
 
 	fmt.Println("Сервер запущен на http://localhost:8080")
