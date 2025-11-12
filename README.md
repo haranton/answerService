@@ -1,118 +1,85 @@
-# AnswerService
-
+AnswerService
 Сервис для управления вопросами и ответами с REST API.
 
-## Описание
+Описание
+AnswerService — бэкенд-приложение на Go, реализующее хранение вопросов и ответов (модели Question и Answer), с использованием REST API и поддержкой миграций базы данных.
 
-AnswerService — бэкенд-приложение на Go, реализующее хранение вопросов и ответов (модели `Question` и `Answer`), с использованием REST API и поддержкой миграций базы данных.  
-Содержит следующие возможности:  
-- CRUD-операции для вопросов и ответов.  
-- Проверка существования вопроса перед добавлением ответа.  
-- Удаление вопроса с каскадным удалением ответов.  
-- Использование миграций (через goose) и ORM (GORM).  
-- Поддержка конфигурации, логирования и разных профилей (например, PostgreSQL или in-memory).
+Основные возможности:
 
-## Структура проекта
+CRUD-операции для вопросов и ответов
 
+Проверка существования вопроса перед добавлением ответа
+
+Удаление вопроса с каскадным удалением ответов
+
+Использование миграций (через goose) и ORM (GORM)
+
+Поддержка конфигурации, логирования и разных профилей (PostgreSQL или in-memory)
+
+Докеризация приложения
+
+Технологический стек
+Язык: Go 1.21+
+
+База данных: PostgreSQL
+
+ORM: GORM
+
+Миграции: Goose
+
+Контейнеризация: Docker, Docker Compose
+
+Логирование: Custom logger
+
+Тестирование: Testify
+
+Структура проекта
+text
 ├── cmd/
-│ └── server/ # точка входа приложения
-├── internals/
-│ ├── config/ # загрузка конфигурации
-│ ├── dto/ # структуры для API (запросы/ответы)
-│ ├── handlers/ # HTTP-обработчики
-│ ├── models/ # модели данных (Question, Answer)
-│ ├── service/ # бизнес-логика
-│ ├── storage/ # слой доступа к данным (PostgreSQL, in-memory)
-│ └── logger/ # логирование
-├── migrations/ # файлы миграций (goose)
-├── docker-compose.yml # настройка контейнеров (БД, сервис)
-├── Dockerfile # сборка образа приложения
-└── README.md # данный файл
+│   └── server/                 # точка входа приложения
+├── internal/
+│   ├── config/                # загрузка конфигурации
+│   ├── dto/                   # структуры для API (запросы/ответы)
+│   ├── handlers/              # HTTP-обработчики
+│   ├── models/                # модели данных (Question, Answer)
+│   ├── service/               # бизнес-логика
+│   ├── storage/               # слой доступа к данным (PostgreSQL, in-memory)
+│   └── logger/                # логирование
+├── migrations/                # файлы миграций (goose)
+├── tests/                     # интеграционные тесты
+├── docker-compose.yml         # настройка контейнеров (БД, сервис)
+├── Dockerfile                 # сборка образа приложения
+└── README.md                  # документация
+Быстрый запуск
+Локальная разработка
+Предварительные условия
+Go версии 1.21+
 
+PostgreSQL 13+
 
-## Быстрый запуск
+Установленный goose для миграций
 
-### Предварительные условия  
-- Go версии ~1.25+ установлен.  
-- (Если используете PostgreSQL) Запущен сервер PostgreSQL.  
-- Установлен инструмент миграций goose (если используете SQL-миграции).  
-- Docker и Docker-Compose доступны (для контейнерной версии).
+bash
+# Установка goose
+go install github.com/pressly/goose/v3/cmd/goose@latest
 
+# Клонирование и настройка проекта
+git clone <repository-url>
+cd answerservice
 
-# настройте файл конфигурации
-config/local.yaml
+# Настройка конфигурации
+cp config/local.yaml.example config/local.yaml
 # отредактируйте config/local.yaml при необходимости
 
-# примените миграции
-goose -dir ./migrations postgres "user=... password=... dbname=... sslmode=disable" up
+# Применение миграций
+goose -dir ./migrations postgres "user=dbuser password=dbpass dbname=answerservice sslmode=disable" up
 
-# запустите приложение
-go run cmd/server/main.go --config=./config/local.yaml --app-type=localhost
-Docker-вариант
+# Запуск приложения
+go run cmd/server/main.go --config=./config/local.yaml
+Запуск через Docker
 bash
-Копировать код
+# Запуск всего стека (приложение + БД)
 docker-compose up --build
-API
-Вопросы (Questions)
-GET /questions/ — список всех вопросов
 
-POST /questions/ — создать новый вопрос
-
-GET /questions/{id} — получить вопрос и все ответы на него
-
-DELETE /questions/{id} — удалить вопрос вместе с ответами
-
-Ответы (Answers)
-POST /questions/{id}/answers — добавить ответ к вопросу
-
-GET /answers/{id} — получить конкретный ответ
-
-DELETE /answers/{id} — удалить ответ
-
-Примеры запросов
-bash
-Копировать код
-# Создать вопрос
-curl -X POST http://localhost:8080/questions \
-     -H "Content-Type: application/json" \
-     -d '{"text":"Что такое Go?"}'
-
-# Добавить ответ к вопросу с id=1
-curl -X POST http://localhost:8080/questions/1/answers \
-     -H "Content-Type: application/json" \
-     -d '{"user_id":"user-123","text":"Язык программирования от Google"}'
-Тестирование
-Юнит-тесты: тестирование сервиса и HTTP-хендлеров (используя testify)
-
-Интеграционные тесты: запуск приложения с тестовой базой, проверка API-эндпоинтов
-
-go test ./internals/...
-go test ./tests/integration_test
-Конфигурация
-Файл конфигурации (config/local.yaml) содержит параметры:
-
-yaml
-Копировать код
-env: DEBUG
-
-app:
-  port: 8080
-  server_addr: ":8080"
-
-database:
-  hostlocal: localhost
-  hostdocker: db
-  port: 5432
-  user: db
-  password: db
-  name: db
-
-storage:
-  type: in-memory
-
-migrations:
-  path: ./migrations
-Миграции
-Файлы миграций размещены в каталоге migrations/. Каждая миграция имеет метку времени и разделы -- +goose Up, -- +goose Down.
-Пример использования:
-goose -dir migrations postgres "user=db password=db dbname=db sslmode=disable" up
+# Только для разработки
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
