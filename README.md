@@ -48,14 +48,6 @@ text
 
 1.  Запуск всего стека (приложение и база данных):
     
-    bashCopy code
-    
     `docker-compose up --build`
-    
-2.  Для разработки (с дополнительными настройками для разработки):
-    
-    bashCopy code
-    
-    `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
     
 
