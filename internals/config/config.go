@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -11,15 +12,18 @@ type Config struct {
 	Env string `yaml:"env" env-required:"true"`
 
 	App struct {
-		Port int `yaml:"port" env-required:"true"`
+		Port       int    `yaml:"port" env-required:"true"`
+		ServerAddr string `yaml:"server_addr" env-required:"true"`
 	} `yaml:"app"`
 
 	Database struct {
-		Host     string `yaml:"host" env-required:"true"`
-		Port     int    `yaml:"port" env-required:"true"`
-		User     string `yaml:"user" env-required:"true"`
-		Password string `yaml:"password" env-required:"true"`
-		Name     string `yaml:"name" env-required:"true"`
+		HostLocal  string `yaml:"hostlocal" env-required:"true"`
+		HostDocker string `yaml:"hostdocker" env-required:"true"`
+		Host       string `yaml:"host"`
+		Port       int    `yaml:"port" env-required:"true"`
+		User       string `yaml:"user" env-required:"true"`
+		Password   string `yaml:"password" env-required:"true"`
+		Name       string `yaml:"name" env-required:"true"`
 	} `yaml:"database"`
 
 	Migrations struct {
@@ -32,8 +36,8 @@ type Config struct {
 }
 
 type Flags struct {
-	ConfigPath  string
-	StorageType string
+	ConfigPath string
+	RunAppType string
 }
 
 func MustLoad() *Config {
@@ -53,11 +57,16 @@ func MustLoad() *Config {
 		panic("failed to read config: " + err.Error())
 	}
 
-	typeStorage := flags.StorageType
-	if typeStorage == "" {
-		panic("storage type is empty (use --storage)")
+	switch flags.RunAppType {
+	case "localhost":
+		cfg.Database.Host = cfg.Database.HostLocal
+	case "docker":
+		cfg.Database.Host = cfg.Database.HostDocker
+	default:
+		panic(fmt.Sprintf("unknown app-type: %q (expected 'localhost' or 'docker')", flags.RunAppType))
 	}
-	cfg.Storage.Type = typeStorage
+
+	fmt.Println("run app with type:", flags.RunAppType)
 
 	return &cfg
 }
@@ -65,7 +74,7 @@ func MustLoad() *Config {
 func parseFlags() *Flags {
 	var f Flags
 	flag.StringVar(&f.ConfigPath, "config", "", "path to config file (or use CONFIG_PATH)")
-	flag.StringVar(&f.StorageType, "storage", "", "type of storage: memory or postgres")
+	flag.StringVar(&f.RunAppType, "app-type", "localhost", "type of application to run (with docker or local)")
 	flag.Parse()
 	return &f
 }

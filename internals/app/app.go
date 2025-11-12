@@ -1,22 +1,22 @@
 package app
 
 import (
-	"authservice/internals/config"
-	"authservice/internals/handlers"
-	"authservice/internals/service"
-	"authservice/internals/storage"
-	"authservice/internals/storage/migrator"
-	"authservice/internals/storage/postgres"
+	"answerService/internals/config"
+	"answerService/internals/handlers"
+	"answerService/internals/service"
+	"answerService/internals/storage"
+	"answerService/internals/storage/migrator"
+	"answerService/internals/storage/postgres"
 	"log/slog"
 	"net/http"
 )
 
 type App struct {
-	cfg     *config.Config
-	logger  *slog.Logger
-	storage storage.Storage
-	service *service.Service
-	server  *handlers.Handler
+	Cfg     *config.Config
+	Logger  *slog.Logger
+	Storage storage.Storage
+	Service *service.Service
+	Server  *handlers.Handler
 }
 
 func New(cfg *config.Config, logger *slog.Logger) *App {
@@ -25,30 +25,34 @@ func New(cfg *config.Config, logger *slog.Logger) *App {
 
 	st := postgres.NewPostgresStorage(dbConnect)
 
-	svc := service.NewService(st, logger, cfg)
+	svc := service.NewService(st, logger)
 
 	srv := handlers.NewHandler(svc, logger, cfg)
 
 	return &App{
-		cfg:     cfg,
-		logger:  logger,
-		storage: st,
-		service: svc,
-		server:  srv,
+		Cfg:     cfg,
+		Logger:  logger,
+		Storage: st,
+		Service: svc,
+		Server:  srv,
 	}
 }
 
-func (a *App) MustStart() error {
+func (a *App) MustStart() {
 
-	migrator.MustRunMigrations(a.cfg, a.logger)
+	migrator.MustRunMigrations(a.Cfg, a.Logger)
 
 	mux := http.NewServeMux()
-	a.server.RegisterRoutes(mux)
+	a.Server.RegisterRoutes(mux)
 
-	a.logger.Info("starting HTTP server", slog.String("addr", a.cfg.App.ServerAddr))
-	return http.ListenAndServe(a.cfg.App.ServerAddr, mux)
+	a.Logger.Info("starting HTTP server", slog.String("addr", a.Cfg.App.ServerAddr))
+	err := http.ListenAndServe(a.Cfg.App.ServerAddr, mux)
+	if err != nil {
+		a.Logger.Error("failed to start HTTP server", slog.String("error", err.Error()))
+	}
+
 }
 
 func (a *App) Close() {
-	a.storage.Close()
+	a.Storage.Close()
 }

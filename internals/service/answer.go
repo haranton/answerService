@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrQuestionNotFound = errors.New("question not found")
+	ErrAnswerNotFound   = errors.New("answer not found")
 )
 
 type AnswerService struct {
@@ -20,11 +21,19 @@ func NewAnswerService(storage storage.Storage) *AnswerService {
 }
 
 func (a *AnswerService) Answer(ctx context.Context, id int) (*models.Answer, error) {
-	return a.storage.Answer(ctx, id)
+
+	answer, err := a.storage.Answer(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if answer == nil {
+		return nil, ErrAnswerNotFound
+	}
+	return answer, nil
 }
 
 func (a *AnswerService) CreateAnswer(ctx context.Context, answer *models.Answer) (*models.Answer, error) {
-	question, err := a.storage.Answer(ctx, answer.ID)
+	question, err := a.storage.Question(ctx, answer.QuestionID)
 	if err != nil {
 		return nil, err
 	}
@@ -35,5 +44,12 @@ func (a *AnswerService) CreateAnswer(ctx context.Context, answer *models.Answer)
 }
 
 func (a *AnswerService) DeleteAnswer(ctx context.Context, id int) error {
+	question, err := a.storage.Answer(ctx, id)
+	if err != nil {
+		return err
+	}
+	if question == nil {
+		return ErrAnswerNotFound
+	}
 	return a.storage.DeleteAnswer(ctx, id)
 }

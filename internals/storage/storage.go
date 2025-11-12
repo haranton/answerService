@@ -5,9 +5,14 @@ import (
 	"context"
 )
 
+type DB interface {
+	Close() error
+}
+
 type Storage interface {
 	QuestionStorage
 	AnswerStorage
+	DB
 }
 
 type QuestionStorage interface {

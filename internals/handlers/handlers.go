@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+var (
+	UserIdErrIsRequired = "user id is required"
+)
+
 type Handler struct {
 	service *service.Service
 	logger  *slog.Logger

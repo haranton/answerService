@@ -19,4 +19,4 @@ COPY --from=builder /app/migrations ./migrations
 
 ENV GIN_MODE=release
 
-CMD ["./main", "--config=./config/local.yaml"]
+CMD ["./main", "--config=./config/local.yaml", "--app-type=docker"]

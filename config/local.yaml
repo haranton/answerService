@@ -1,6 +1,7 @@
 
 database:
-  host: db
+  hostlocal: localhost
+  hostdocker: db
   port: 5432
   user: db
   password: db
@@ -12,6 +13,7 @@ storage:
 env: DEBUG   # возможные значения: PRODUCTION или DEBUG
 app:
   port: 8080
+  server_addr: ":8080"
 
 migrations:
   path: ./migrations

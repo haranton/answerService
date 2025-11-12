@@ -27,5 +27,9 @@ func (q *QuestionService) CreateQuestion(ctx context.Context, question *models.Q
 }
 
 func (q *QuestionService) DeleteQuestion(ctx context.Context, id int) error {
+	if _, err := q.storage.Question(ctx, id); err != nil {
+		return err
+	}
+
 	return q.storage.DeleteQuestion(ctx, id)
 }

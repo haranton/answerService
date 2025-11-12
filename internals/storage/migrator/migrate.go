@@ -1,14 +1,13 @@
 package migrator
 
 import (
+	"answerService/internals/config"
 	"database/sql"
 	"fmt"
 	"log/slog"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/haranton/go-graphql-blog/internals/config"
+	_ "github.com/lib/pq"
+	"github.com/pressly/goose/v3"
 )
 
 func RunMigrations(cfg *config.Config, logger *slog.Logger) error {
@@ -41,22 +40,15 @@ func RunMigrations(cfg *config.Config, logger *slog.Logger) error {
 		}
 	}()
 
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	if err != nil {
-		return fmt.Errorf("create driver: %w", err)
-	}
-
 	migrationPath := cfg.Migrations.Path
 
 	logger.Info("Using migrations path", slog.String("path", migrationPath))
 
-	m, err := migrate.NewWithDatabaseInstance("file://"+migrationPath, "postgres", driver)
-	if err != nil {
-		return fmt.Errorf("create migrate instance: %w", err)
-	}
+	goose.SetBaseFS(nil)
+	goose.SetLogger(goose.NopLogger())
 
-	if err := m.Up(); err != nil {
-		if err == migrate.ErrNoChange {
+	if err := goose.Up(db, migrationPath); err != nil {
+		if err.Error() == "no migrations to run. current version: 1" {
 			logger.Info("No new migrations to apply")
 		} else {
 			return fmt.Errorf("run migrations: %w", err)

@@ -23,7 +23,7 @@ func (st *PostgresStorage) Questions(ctx context.Context) ([]models.Question, er
 	return questions, nil
 }
 
-func (st *PostgresStorage) CreateQuestions(ctx context.Context, question *models.Question) (*models.Question, error) {
+func (st *PostgresStorage) CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error) {
 	if err := st.db.WithContext(ctx).Create(question).Error; err != nil {
 		return nil, err
 	}

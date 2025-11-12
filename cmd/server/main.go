@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"answerService/internals/app"
+	"answerService/internals/config"
+	"answerService/internals/logger"
+	"os"
+	"os/signal"
+	"syscall"
 )
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Привет! Это простой HTTP сервер на Go 🚀")
-}
 
 func main() {
 
@@ -26,21 +26,3 @@ func main() {
 	logger.Info("app succesfully stop")
 
 }
-
-// func main() {
-
-// 	// logger
-// 	// config
-// 	// db connect
-// 	// migrate
-// 	//
-
-// 	http.HandleFunc("/", handler)
-
-// 	fmt.Println("Сервер запущен на http://localhost:8080")
-// 	err := http.ListenAndServe(":8080", nil)
-// 	if err != nil {
-// 		fmt.Errorf("failed run server err: %s", err)
-// 	}
-
-// }
