@@ -41,3 +41,21 @@ text
 ├── docker-compose.yml          # Настройка контейнеров (БД, сервис)
 ├── Dockerfile                  # Сборка образа приложения
 └── README.md                   # Документация
+
+### Запуск через Docker
+
+Если вы хотите запустить сервис через Docker, используйте следующие шаги:
+
+1.  Запуск всего стека (приложение и база данных):
+    
+    bashCopy code
+    
+    `docker-compose up --build`
+    
+2.  Для разработки (с дополнительными настройками для разработки):
+    
+    bashCopy code
+    
+    `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
+    
+
