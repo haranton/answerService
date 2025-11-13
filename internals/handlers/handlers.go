@@ -29,7 +29,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
 	mux.HandleFunc("GET /api/questions/", h.GetQuestions)
 	mux.HandleFunc("POST /api/questions/", h.CreateQuestion)
-	mux.HandleFunc("GET /api/questions/{id}", h.GetQuestion)
+	mux.HandleFunc("GET /api/questions/{id}", h.GetQuestionWithAnswers)
 	mux.HandleFunc("DELETE /api/questions/{id}", h.DeleteQuestion)
 
 	mux.HandleFunc("POST /api/questions/{id}/answers/", h.CreateAnswer)

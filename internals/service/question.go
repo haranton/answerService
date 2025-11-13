@@ -4,6 +4,9 @@ import (
 	"answerService/internals/models"
 	"answerService/internals/storage"
 	"context"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
 type QuestionService struct {
@@ -18,8 +21,15 @@ func (q *QuestionService) Questions(ctx context.Context) ([]models.Question, err
 	return q.storage.Questions(ctx)
 }
 
-func (q *QuestionService) Question(ctx context.Context, id int) (*models.Question, error) {
-	return q.storage.Question(ctx, id)
+func (q *QuestionService) QuestionWithAnswers(ctx context.Context, id int) (*models.Question, error) {
+	question, err := q.storage.QuestionWithAnswers(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrQuestionNotFound
+		}
+		return nil, err
+	}
+	return question, nil
 }
 
 func (q *QuestionService) CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error) {

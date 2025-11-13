@@ -3,7 +3,9 @@ package handlers
 import (
 	"answerService/internals/dto"
 	"answerService/internals/models"
+	"answerService/internals/service"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -53,7 +55,7 @@ func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) GetQuestion(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetQuestionWithAnswers(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -61,19 +63,19 @@ func (h *Handler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	question, err := h.service.SrvQuestion.Question(r.Context(), id)
+	questionWithAnswers, err := h.service.SrvQuestion.QuestionWithAnswers(r.Context(), id)
 	if err != nil {
+		if errors.Is(err, service.ErrQuestionNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if question == nil {
-		http.Error(w, "question not found", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(question); err != nil {
+	if err := json.NewEncoder(w).Encode(questionWithAnswers); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

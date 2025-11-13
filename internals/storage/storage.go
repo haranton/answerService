@@ -16,6 +16,7 @@ type Storage interface {
 }
 
 type QuestionStorage interface {
+	QuestionWithAnswers(ctx context.Context, id int) (*models.Question, error)
 	Question(ctx context.Context, id int) (*models.Question, error)
 	Questions(ctx context.Context) ([]models.Question, error)
 	CreateQuestion(ctx context.Context, question *models.Question) (*models.Question, error)

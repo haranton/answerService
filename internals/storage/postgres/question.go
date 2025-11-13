@@ -14,6 +14,18 @@ func (st *PostgresStorage) Question(ctx context.Context, id int) (*models.Questi
 	return &q, nil
 }
 
+func (st *PostgresStorage) QuestionWithAnswers(ctx context.Context, id int) (*models.Question, error) {
+	var q models.Question
+
+	if err := st.db.WithContext(ctx).
+		Preload("Answers").
+		First(&q, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &q, nil
+}
+
 func (st *PostgresStorage) Questions(ctx context.Context) ([]models.Question, error) {
 	var questions []models.Question
 	if err := st.db.WithContext(ctx).
